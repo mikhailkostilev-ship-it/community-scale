@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Шкала зрелости продукта | Центр сообществ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#e8e6dc;--bg2:#dfdcce;--bg3:#f5f4ed;--dark:#141413;
+--t1:#141413;--t2:rgba(20,20,19,.6);--t3:rgba(20,20,19,.35);
+--gold:#eda100;--terra:#d97757;--green:#5a8a5e;
+--border:rgba(20,20,19,.12);--border-l:rgba(20,20,19,.06);
+--serif:'Source Serif 4',Georgia,serif;
+--sans:'DM Sans',-apple-system,sans-serif;
+--mono:'JetBrains Mono',monospace;
+--r:4px;--w:900px;--m:clamp(1.5rem,4vw,3rem);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.6;-webkit-font-smoothing:antialiased}
+.w{max-width:var(--w);margin:0 auto;padding:0 var(--m)}
+a{color:inherit;text-decoration:none}
+
+/* Nav */
+.nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);background:rgba(232,230,220,.85);border-bottom:1px solid var(--border-l)}
+.nav-inner{max-width:var(--w);margin:0 auto;padding:0 var(--m);display:flex;align-items:center;justify-content:space-between;height:52px}
+.nav-logo{font-size:.875rem;font-weight:700}
+.nav-links{display:flex;gap:20px}
+.nav-links a{font-size:.8125rem;font-weight:500;color:var(--t2);transition:color .15s}
+.nav-links a:hover{color:var(--t1)}
+
+.sec{padding:56px 0}
+.sec-warm{background:var(--bg2)}
+.sec-dark{background:var(--dark);color:#f5f4ed}
+.sec-dark .lbl{color:rgba(245,244,237,.5)}
+.sec-dark p{color:rgba(245,244,237,.6)}
+.divider{height:1px;background:var(--border);margin-bottom:40px}
+.lbl{font-family:var(--mono);font-size:.625rem;text-transform:uppercase;letter-spacing:.12em;color:var(--t2);margin-bottom:10px}
+h2{font-family:var(--serif);font-size:clamp(1.25rem,2.5vw,1.75rem);font-weight:400;letter-spacing:-.02em;margin-bottom:16px;line-height:1.25}
+h3{font-family:var(--serif);font-size:1.0625rem;font-weight:500;margin-bottom:8px}
+.sub{color:var(--t2);max-width:600px;margin-bottom:24px;line-height:1.7}
+
+/* Hero */
+.hero{padding:80px 0 48px;border-bottom:1px solid var(--border)}
+.hero-label{font-family:var(--mono);font-size:.625rem;text-transform:uppercase;letter-spacing:.12em;color:var(--t2);margin-bottom:16px}
+.hero h1{font-family:var(--serif);font-size:clamp(1.75rem,4vw,2.75rem);font-weight:400;line-height:1.2;letter-spacing:-.02em;margin-bottom:12px}
+.hero h1 em{color:var(--terra);font-style:italic}
+.hero p{color:var(--t2);max-width:600px;font-size:1rem;line-height:1.7}
+
+/* Visual scale bar */
+.scale-bar{display:flex;align-items:stretch;gap:2px;margin:24px 0 32px;height:56px}
+.scale-seg{flex:1;border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative}
+.scale-seg:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.scale-seg-num{font-family:var(--mono);font-size:.5625rem;opacity:.7}
+.scale-seg-name{font-size:.6875rem;font-weight:600}
+.scale-seg[data-l="1"]{background:#e8ddc8;color:var(--t1)}
+.scale-seg[data-l="2"]{background:#ddd0b0;color:var(--t1)}
+.scale-seg[data-l="3"]{background:#c9b78e;color:var(--t1)}
+.scale-seg[data-l="4"]{background:#b09768;color:#fff}
+.scale-seg[data-l="5"]{background:#8b7340;color:#fff}
+
+/* Markers on scale */
+.scale-marker{position:absolute;bottom:-18px;font-size:.5rem;font-family:var(--mono);font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;display:none}
+.marker-current{background:var(--terra);color:#fff}
+.marker-target{background:var(--green);color:#fff}
+
+/* Level cards */
+.levels-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:24px}
+.level-card{background:var(--bg3);padding:20px 16px;cursor:pointer;transition:background .15s}
+.level-card:hover,.level-card.active{background:#fff}
+.level-card.active{box-shadow:inset 0 -3px 0 var(--terra)}
+.level-num{font-family:var(--mono);font-size:.625rem;color:var(--t3);margin-bottom:6px}
+.level-name{font-family:var(--serif);font-size:.9375rem;font-weight:500;margin-bottom:6px}
+.level-short{font-size:.75rem;color:var(--t2);line-height:1.4}
+
+.level-detail{display:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-bottom:24px}
+.level-detail.visible{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.detail-label{font-family:var(--mono);font-size:.5625rem;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:3px}
+.detail-value{font-size:.8125rem;color:var(--t2);line-height:1.5}
+.detail-value strong{color:var(--t1)}
+
+/* Ladder */
+.ladder-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.ladder-cell{background:var(--bg3);padding:14px 12px;text-align:center}
+.ladder-cell-head{font-family:var(--mono);font-size:.5625rem;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:6px}
+.ladder-cell-val{font-size:.75rem;color:var(--t2);line-height:1.4}
+.ladder-cell-lvl{font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--terra);margin-bottom:2px}
+
+/* Compare */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.75rem;margin:16px 0}
+.cmp-table th,.cmp-table td{border:1px solid var(--border-l);padding:7px 8px;text-align:left;vertical-align:top}
+.cmp-table th{background:var(--bg3);font-weight:600;font-size:.625rem;text-transform:uppercase;letter-spacing:.04em;color:var(--t3)}
+.cmp-table td{color:var(--t2)}
+
+/* Products */
+.products-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.product-card{background:var(--bg3);border:1px solid var(--border-l);border-radius:var(--r);padding:20px;cursor:default;transition:border-color .15s}
+.product-card:hover{border-color:var(--border)}
+.product-name{font-family:var(--serif);font-size:.9375rem;font-weight:500;margin-bottom:8px}
+.product-levels{display:flex;gap:8px;align-items:center;margin-bottom:6px;font-size:.75rem}
+.product-current{background:rgba(217,119,87,.12);color:var(--terra);padding:2px 8px;border-radius:2px;font-weight:600}
+.product-target{background:rgba(90,138,94,.12);color:var(--green);padding:2px 8px;border-radius:2px;font-weight:600}
+.product-arrow{color:var(--t3)}
+.product-note{font-size:.6875rem;color:var(--t3);line-height:1.4}
+
+/* Survey */
+.survey{max-width:640px;margin:0 auto}
+.survey-intro{background:rgba(237,161,0,.06);border:1px solid rgba(237,161,0,.2);border-radius:var(--r);padding:14px 18px;margin-bottom:24px;font-size:.8125rem;color:var(--t2);line-height:1.5}
+.survey-intro strong{color:var(--t1)}
+.q-block{margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border-l)}
+.q-block:last-child{border-bottom:none}
+.q-num{font-family:var(--mono);font-size:.5625rem;color:var(--t3);margin-bottom:3px}
+.q-text{font-size:.9375rem;font-weight:500;margin-bottom:10px;line-height:1.5}
+.q-hint{font-size:.6875rem;color:var(--t3);margin-bottom:10px;font-style:italic}
+.options{display:flex;flex-direction:column;gap:5px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:7px 12px;border:1px solid var(--border-l);border-radius:var(--r);cursor:pointer;transition:.15s;font-size:.8125rem;color:var(--t2);line-height:1.4}
+.opt:hover{border-color:var(--border);background:rgba(20,20,19,.02)}
+.opt.selected{border-color:var(--terra);background:rgba(217,119,87,.06);color:var(--t1)}
+.opt-multi.selected{border-color:var(--gold);background:rgba(237,161,0,.06)}
+.opt-radio{width:14px;height:14px;min-width:14px;border-radius:50%;border:2px solid var(--border);margin-top:2px;transition:.15s}
+.opt.selected .opt-radio{border-color:var(--terra);background:var(--terra)}
+.opt-check{width:14px;height:14px;min-width:14px;border-radius:3px;border:2px solid var(--border);margin-top:2px;transition:.15s}
+.opt-multi.selected .opt-check{border-color:var(--gold);background:var(--gold)}
+
+.tab-buttons{display:flex;gap:8px;margin-bottom:24px}
+.tab-btn{padding:8px 20px;border:1px solid var(--border);border-radius:var(--r);font-size:.8125rem;font-weight:500;cursor:pointer;background:transparent;font-family:var(--sans);transition:.15s}
+.tab-btn:hover{border-color:var(--t2)}
+.tab-btn.active{background:var(--t1);color:var(--bg);border-color:var(--t1)}
+.tab-content{display:none}
+.tab-content.visible{display:block}
+
+/* Results */
+.result-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:14px}
+.result-row{display:flex;gap:14px;margin-bottom:14px}
+.result-col{flex:1}
+
+/* Visual result scale */
+.res-scale{display:flex;align-items:center;gap:0;margin:20px 0;position:relative;height:48px}
+.res-scale-seg{flex:1;height:10px;position:relative}
+.res-scale-seg[data-l="1"]{background:#e8ddc8;border-radius:5px 0 0 5px}
+.res-scale-seg[data-l="2"]{background:#ddd0b0}
+.res-scale-seg[data-l="3"]{background:#c9b78e}
+.res-scale-seg[data-l="4"]{background:#b09768}
+.res-scale-seg[data-l="5"]{background:#8b7340;border-radius:0 5px 5px 0}
+.res-marker{position:absolute;top:-16px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.625rem;font-weight:700;transform:translateX(-50%);z-index:2}
+.res-marker::after{content:'';position:absolute;bottom:-4px;width:8px;height:8px;background:inherit;transform:rotate(45deg);border-radius:1px}
+.res-marker-current{background:var(--terra);color:#fff}
+.res-marker-target{background:var(--green);color:#fff}
+.res-marker-label{position:absolute;bottom:-20px;font-size:.5rem;font-family:var(--mono);color:var(--t3);white-space:nowrap;transform:translateX(-50%)}
+
+.rec-list{list-style:none}
+.rec-list li{padding:7px 0;border-bottom:1px solid var(--border-l);font-size:.8125rem;color:var(--t2)}
+.rec-list li:last-child{border-bottom:none}
+.risk-tag{display:inline-block;padding:2px 8px;border-radius:2px;font-size:.625rem;font-weight:600;margin-right:6px}
+.risk-high{background:rgba(217,119,87,.15);color:var(--terra)}
+.risk-med{background:rgba(237,161,0,.15);color:#b8860b}
+
+.btn{display:inline-flex;align-items:center;padding:10px 24px;font-size:.875rem;font-weight:600;font-family:var(--sans);border:1px solid var(--t1);border-radius:var(--r);background:var(--t1);color:var(--bg);cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.8}
+.btn-ghost{background:transparent;color:var(--t1);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--t1);opacity:1}
+.btn-sm{padding:7px 16px;font-size:.75rem}
+
+.footer{padding:24px 0;border-top:1px solid var(--border);text-align:center}
+.footer p{font-size:.75rem;color:var(--t3)}
+
+.copied-toast{position:fixed;bottom:24px;right:24px;background:var(--dark);color:#f5f4ed;padding:10px 20px;border-radius:var(--r);font-size:.8125rem;z-index:200;display:none}
+
+@media(max-width:768px){
+.levels-grid{grid-template-columns:1fr 1fr}
+.detail-grid{grid-template-columns:1fr}
+.products-grid{grid-template-columns:1fr}
+.ladder-grid{grid-template-columns:repeat(3,1fr)}
+.nav-links{display:none}
+.result-row{flex-direction:column}
+.scale-bar{height:44px}
+.scale-seg-name{font-size:.5625rem}
+}
+@media(max-width:480px){
+.levels-grid{grid-template-columns:1fr}
+.scale-bar{flex-direction:column;height:auto;gap:4px}
+.scale-seg{height:36px;flex-direction:row;gap:8px;padding:0 12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+<div class="nav-inner">
+<span class="nav-logo">Центр сообществ</span>
+<div class="nav-links">
+<a href="#levels">Шкала</a>
+<a href="#ladder">Лестница</a>
+<a href="#products-sec">Продукты</a>
+<a href="#diagnose">Диагностика</a>
+</div>
+</div>
+</nav>
+
+<header class="hero">
+<div class="w">
+<p class="hero-label">Шкала зрелости продукта &middot; v3.0</p>
+<h1>От мероприятия к&nbsp;<em>сообществу</em></h1>
+<p>Мы называем всё &laquo;сообществами&raquo;, но строим разные продукты. Для одного заказчика &mdash; серия мероприятий с нетворкингом. Для другого &mdash; среда, в которой люди доверяют друг другу настолько, чтобы менять свои практики.</p>
+<p style="margin-top:10px">Это разные продукты, разные метрики, разные ресурсы и разные обещания. Шкала помогает честно ответить на три вопроса: что мы реально строим прямо сейчас, что можем построить при имеющихся ресурсах и что обещаем заказчику.</p>
+<p style="margin-top:10px"><strong>Важно:</strong> это навигатор, не приговор. Зацелились на уровень 2, достигли &mdash; решаем, хотим ли двигаться дальше. Пересматриваем раз в квартал.</p>
+
+<!-- Scale overview -->
+<div style="margin-top:28px;display:flex;gap:3px">
+<div style="flex:1;padding:10px;background:#e8ddc8;border-radius:var(--r);text-align:center"><div style="font-family:var(--mono);font-size:.5rem;opacity:.6">01</div><div style="font-size:.6875rem;font-weight:600">Мероприятие</div><div style="font-size:.5625rem;color:var(--t3);margin-top:2px">Разовый контакт</div></div>
+<div style="flex:1;padding:10px;background:#ddd0b0;border-radius:var(--r);text-align:center"><div style="font-family:var(--mono);font-size:.5rem;opacity:.6">02</div><div style="font-size:.6875rem;font-weight:600">Серия</div><div style="font-size:.5625rem;color:var(--t3);margin-top:2px">Регулярный ритм</div></div>
+<div style="flex:1;padding:10px;background:#c9b78e;border-radius:var(--r);text-align:center"><div style="font-family:var(--mono);font-size:.5rem;opacity:.6">03</div><div style="font-size:.6875rem;font-weight:600">Клуб</div><div style="font-size:.5625rem;color:var(--t3);margin-top:2px">Обмен опытом</div></div>
+<div style="flex:1;padding:10px;background:#b09768;border-radius:var(--r);text-align:center;color:#fff"><div style="font-family:var(--mono);font-size:.5rem;opacity:.7">04</div><div style="font-size:.6875rem;font-weight:600">Среда доверия</div><div style="font-size:.5625rem;opacity:.7;margin-top:2px">Уязвимость и поддержка</div></div>
+<div style="flex:1;padding:10px;background:#8b7340;border-radius:var(--r);text-align:center;color:#fff"><div style="font-family:var(--mono);font-size:.5rem;opacity:.7">05</div><div style="font-size:.6875rem;font-weight:600">Сообщество</div><div style="font-size:.5625rem;opacity:.7;margin-top:2px">Самоорганизация и миссия</div></div>
+</div>
+<p style="font-size:.75rem;color:var(--t3);margin-top:8px;text-align:center">Каждый уровень &mdash; отдельный тип продукта. Не &laquo;хуже&raquo; или &laquo;лучше&raquo;, а разные задачи, ресурсы и обещания. <a href="#levels" style="color:var(--terra);border-bottom:1px solid var(--terra)">Подробнее &darr;</a></p>
+</div>
+</header>
+
+<!-- Levels -->
+<section class="sec" id="levels">
+<div class="w">
+<div class="divider"></div>
+<span class="lbl">Часть I</span>
+<h2>Пять уровней зрелости</h2>
+<p class="sub">Каждый уровень &mdash; это отдельный тип продукта, а не &laquo;хуже&raquo; или &laquo;лучше&raquo;. Качественное мероприятие (уровень 1) для одной аудитории может быть ровно тем, что нужно. А попытка строить сообщество (уровень 5) там, где заказчик хочет серию событий &mdash; трата ресурсов и разочарование.</p>
+<p class="sub" style="margin-top:-12px">Нажмите на уровень, чтобы увидеть детали: что даёт участнику, что приносит Сберу, какие эффекты предсказуемы, а какие возникают случайно.</p>
+<div class="levels-grid" id="levelsGrid">
+<div class="level-card active" data-level="1" onclick="showLevel(1)"><div class="level-num">01</div><div class="level-name">Мероприятие</div><div class="level-short">Разовое событие. Связи не формируются.</div></div>
+<div class="level-card" data-level="2" onclick="showLevel(2)"><div class="level-num">02</div><div class="level-name">Серия</div><div class="level-short">Регулярность. Чат. Начинают узнавать.</div></div>
+<div class="level-card" data-level="3" onclick="showLevel(3)"><div class="level-num">03</div><div class="level-name">Клуб</div><div class="level-short">Горизонтальные форматы. Ядро.</div></div>
+<div class="level-card" data-level="4" onclick="showLevel(4)"><div class="level-num">04</div><div class="level-name">Среда доверия</div><div class="level-short">Конфиденциальность. Форум-группы.</div></div>
+<div class="level-card" data-level="5" onclick="showLevel(5)"><div class="level-num">05</div><div class="level-name">Сообщество</div><div class="level-short">Самоорганизация. Миссия.</div></div>
+</div>
+<div id="levelDetails"></div>
+</div>
+</section>
+
+<!-- Ladder -->
+<section class="sec sec-warm" id="ladder">
+<div class="w">
+<div class="divider"></div>
+<span class="lbl">Лестница доверия Сбера</span>
+<h2>Как наш уровень влияет на финансовые отношения</h2>
+<p class="sub">Лестница доверия Сбера (0-3 звезды) &mdash; это финансовая метрика: доля Сбера в оборотах клиента, операционный доход, наличие премиальных продуктов. Это не про эмоциональное доверие &mdash; это про глубину финансовых отношений.</p>
+<p class="sub" style="margin-top:-12px">Мы не двигаем клиента по лестнице напрямую. Мы создаём условия, при которых он <strong>сам</strong> решает перевести больше бизнеса в Сбер. Механизм: доверие к людям Сбера (через сообщество) &rarr; доверие к продуктам &rarr; рост финансовых показателей.</p>
+<p class="sub" style="margin-top:-12px"><strong>Важно:</strong> мы не знаем, на какой звезде клиент приходит к нам. Поэтому измеряем не &laquo;движение по лестнице&raquo;, а условия для движения: CSAT, retention, глубину связей. Финансовый эффект замеряем по когортам совместно с сегментом.</p>
+<div class="ladder-grid">
+<div class="ladder-cell"><div class="ladder-cell-lvl">1</div><div class="ladder-cell-head">Мероприятие</div><div class="ladder-cell-val">Одно касание. Минимальное влияние</div></div>
+<div class="ladder-cell"><div class="ladder-cell-lvl">2</div><div class="ladder-cell-head">Серия</div><div class="ladder-cell-val">Регулярные касания. Знакомство с продуктами</div></div>
+<div class="ladder-cell"><div class="ladder-cell-lvl">3</div><div class="ladder-cell-head">Клуб</div><div class="ladder-cell-val">Обмен кейсами. Данные о целях клиента</div></div>
+<div class="ladder-cell"><div class="ladder-cell-lvl">4</div><div class="ladder-cell-head">Среда доверия</div><div class="ladder-cell-val">Концентрация отношений. Рекомендации</div></div>
+<div class="ladder-cell"><div class="ladder-cell-lvl">5</div><div class="ladder-cell-head">Сообщество</div><div class="ladder-cell-val">Стратегическое партнёрство</div></div>
+</div>
+</div>
+</section>
+
+<!-- Compare -->
+<section class="sec" id="compare">
+<div class="w">
+<div class="divider"></div>
+<span class="lbl">Сравнение</span>
+<h2>Сводная таблица уровней</h2>
+<p class="sub">Семь факторов, которые определяют уровень. Обратите внимание на строку &laquo;КМ уходит&raquo; &mdash; это самый честный тест: насколько продукт живёт без нас.</p>
+<div style="overflow-x:auto">
+<table class="cmp-table">
+<thead><tr><th>Фактор</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+<tbody>
+<tr><td><strong>Частота</strong></td><td>Разово</td><td>4-12/год</td><td>1-2/мес + чат</td><td>Еженедельно</td><td>Ежедневно</td></tr>
+<tr><td><strong>Связи</strong></td><td>Нет</td><td>Узнавание</td><td>Функц. &rarr; личные</td><td>Доверительные</td><td>Трансформирующие</td></tr>
+<tr><td><strong>Ядро</strong></td><td>Нет</td><td>Нет</td><td>5-10%</td><td>15-20%</td><td>25-30%</td></tr>
+<tr><td><strong>Роль КМ</strong></td><td>Организатор</td><td>Орг. + модератор</td><td>Мод. + фасилитатор</td><td>Фасилитатор</td><td>Садовник</td></tr>
+<tr><td><strong>Конфиденц.</strong></td><td>Нет</td><td>Нет</td><td>Нет</td><td>Да, правила</td><td>Да, культура</td></tr>
+<tr><td><strong>Идентичность</strong></td><td>&laquo;Посетил&raquo;</td><td>&laquo;Хожу&raquo;</td><td>&laquo;Участник&raquo;</td><td>&laquo;Часть группы&raquo;</td><td>&laquo;Мы&raquo;</td></tr>
+<tr><td><strong>КМ уходит</strong></td><td>Ничего</td><td>-90%</td><td>-50-60%</td><td>Ядро живёт</td><td>Живёт само</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<!-- Products -->
+<section class="sec sec-warm" id="products-sec">
+<div class="w">
+<div class="divider"></div>
+<span class="lbl">Наши продукты</span>
+<h2>Где мы сейчас &mdash; честная оценка</h2>
+<p class="sub">Важно: шкала применяется к конкретной территории, не к бренду целиком. Продукт &laquo;Содействие&raquo; может быть на уровне 2 в Москве и на уровне 1 в Кирове. Потому что для участника в Кирове важна не суммарная статистика по стране, а то, сколько раз в год он лично взаимодействует с сообществом.</p>
+<p class="sub" style="margin-top:-12px">Не всё должно быть на уровне 5. Качественная серия мероприятий (уровень 2) для РГС &mdash; это полноценный продукт, а не &laquo;недоделанное сообщество&raquo;.</p>
+<div class="products-grid">
+<div class="product-card">
+<div class="product-name">Содействие (КСБ)</div>
+<div class="product-levels"><span class="product-current">Сейчас: 1-2</span><span class="product-arrow">&rarr;</span><span class="product-target">Цель: 2-3</span></div>
+<div class="product-note">Москва: 1-2 &rarr; 2-3. Регионы: 1 &rarr; 2. Внутри: CEO-клуб (1-2 &rarr; 3-4), ГигаАкадемия (трек уровня 2)</div>
+</div>
+<div class="product-card">
+<div class="product-name">Свернём горы (РГС)</div>
+<div class="product-levels"><span class="product-current">Сейчас: 1</span><span class="product-arrow">&rarr;</span><span class="product-target">Цель: 2</span></div>
+<div class="product-note">Потолок 2-3. Специфика госслужбы. И это нормально.</div>
+</div>
+<div class="product-card">
+<div class="product-name">ММБ &mdash; Бухгалтерия</div>
+<div class="product-levels"><span class="product-current">Сейчас: 1</span><span class="product-arrow">&rarr;</span><span class="product-target">Цель: 2</span></div>
+<div class="product-note">Амбициозно: 2-3 при однородной аудитории и регулярности</div>
+</div>
+<div class="product-card">
+<div class="product-name">ММБ &mdash; Еком</div>
+<div class="product-levels"><span class="product-current">Сейчас: 1</span><span class="product-arrow">&rarr;</span><span class="product-target">Цель: 2</span></div>
+<div class="product-note">Амбициозно: 3 (клуб). Горячая тема, мотивированные участники</div>
+</div>
+<div class="product-card">
+<div class="product-name">Амбассадоры Сбера</div>
+<div class="product-levels"><span class="product-current">Сейчас: 1-2</span><span class="product-arrow">&rarr;</span><span class="product-target">Цель: 2-3</span></div>
+<div class="product-note">Амбициозно: 4. Общая миссия. Нужен кросс-сегментный статус</div>
+</div>
+<div class="product-card">
+<div class="product-name">Аламни</div>
+<div class="product-levels"><span class="product-current">Сейчас: 2</span><span class="product-arrow">&rarr;</span><span class="product-target">Цель: 2-3</span></div>
+<div class="product-note">Амбициозно: 3-4. Общий опыт обучения = фундамент доверия</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Diagnose -->
+<section class="sec" id="diagnose">
+<div class="w">
+<div class="divider"></div>
+<span class="lbl">Диагностика</span>
+<h2>Определяем целевой уровень продукта</h2>
+<p class="sub">Прежде чем строить, нужно понять: какой уровень реалистичен для этого заказчика, этой аудитории, на этой территории. Два опросника: один для бизнес-заказчика (&laquo;что вы хотите?&raquo;), второй для КМ (&laquo;что мы реально можем?&raquo;). На выходе &mdash; карточка продукта с планом и рекомендациями.</p>
+
+<div class="tab-buttons">
+<button class="tab-btn active" onclick="showTab('customer')">Бизнес-заказчик</button>
+<button class="tab-btn" onclick="showTab('cm')">КМ / руководитель</button>
+</div>
+
+<div class="tab-content visible" id="tab-customer">
+<div class="survey-intro"><strong>10 вопросов, ~5 минут.</strong> Помогут нам понять, какой продукт вам нужен, что мы можем построить и какие ресурсы для этого потребуются. На выходе &mdash; карточка продукта с рекомендациями.</div>
+<div class="survey" id="survey-customer">
+<div class="q-block"><div class="q-num">1 / 10</div><div class="q-text">Что вы хотите получить от этого проекта для своего бизнеса?</div><div class="q-hint">Выберите три главных. Комбинация ответов определяет тип продукта, который мы будем строить.</div>
+<div class="options" data-q="c1" data-type="multi" data-max="3">
+<div class="opt opt-multi" data-val="a" data-score="1"><div class="opt-check"></div>Охват и узнаваемость</div>
+<div class="opt opt-multi" data-val="b" data-score="1.5"><div class="opt-check"></div>Качественная событийка &mdash; больше ценности от мероприятий</div>
+<div class="opt opt-multi" data-val="c" data-score="2.5"><div class="opt-check"></div>Продвижение технологий/продуктов (ГигаЧат, GenAI)</div>
+<div class="opt opt-multi" data-val="d" data-score="3"><div class="opt-check"></div>Укрепление отношений с клиентами</div>
+<div class="opt opt-multi" data-val="e" data-score="3.5"><div class="opt-check"></div>Измеримый эффект на бизнес (лестница доверия, ЧОД)</div>
+<div class="opt opt-multi" data-val="f" data-score="3"><div class="opt-check"></div>Сбор данных о клиентах для стратегических диалогов</div>
+<div class="opt opt-multi" data-val="g" data-score="2"><div class="opt-check"></div>Другое</div>
+</div></div>
+<div class="q-block"><div class="q-num">2 / 10</div><div class="q-text">Какой сегмент бизнеса?</div>
+<div class="q-hint">Специфика сегмента влияет на форматы, ограничения и реалистичный уровень продукта.</div>
+<div class="options" data-q="c_seg" data-type="single">
+<div class="opt" data-val="ksb" data-score="3"><div class="opt-radio"></div>КСБ &mdash; крупный и средний бизнес (Компании Роста)</div>
+<div class="opt" data-val="mmb" data-score="2"><div class="opt-radio"></div>ММБ &mdash; малый и микробизнес</div>
+<div class="opt" data-val="rgs" data-score="1"><div class="opt-radio"></div>РГС &mdash; региональный госсектор</div>
+<div class="opt" data-val="rb" data-score="2"><div class="opt-radio"></div>Розничный бизнес</div>
+<div class="opt" data-val="other" data-score="2"><div class="opt-radio"></div>Другое / внутренний (амбассадоры, аламни)</div>
+</div></div>
+<div class="q-block"><div class="q-num">3 / 10</div><div class="q-text">Размер целевой аудитории</div>
+<div class="q-hint">Сколько людей вы хотите охватить этим продуктом. Чем больше аудитория &mdash; тем сложнее обеспечить глубину: 50 человек можно собрать в клуб, 5 000 &mdash; скорее серия.</div>
+<div class="options" data-q="c2" data-type="single">
+<div class="opt" data-val="a" data-score="4"><div class="opt-radio"></div>До 100 &mdash; проще строить глубину</div>
+<div class="opt" data-val="b" data-score="3"><div class="opt-radio"></div>100&ndash;500</div>
+<div class="opt" data-val="c" data-score="2"><div class="opt-radio"></div>500&ndash;2 000</div>
+<div class="opt" data-val="d" data-score="1"><div class="opt-radio"></div>2 000+ &mdash; сложнее обеспечить глубину</div>
+</div></div>
+<div class="q-block"><div class="q-num">4 / 10</div><div class="q-text">География</div>
+<div class="q-hint">Чем шире география &mdash; тем сложнее обеспечить регулярность для конкретного участника. В Москве можно встречаться дважды в месяц. В 11 ТБ по всей России &mdash; это другая задача.</div>
+<div class="options" data-q="c3" data-type="single">
+<div class="opt" data-val="a" data-score="4"><div class="opt-radio"></div>Один город</div>
+<div class="opt" data-val="b" data-score="3"><div class="opt-radio"></div>Несколько городов / один ТБ</div>
+<div class="opt" data-val="c" data-score="2"><div class="opt-radio"></div>Несколько ТБ</div>
+<div class="opt" data-val="d" data-score="1"><div class="opt-radio"></div>Вся Россия (11 ТБ)</div>
+</div></div>
+<div class="q-block"><div class="q-num">5 / 10</div><div class="q-text">Частота касаний для участника в городе &mdash; что готовы обеспечить?</div>
+<div class="q-hint">Думайте о конкретном человеке в конкретном городе: сколько раз в год он лично будет взаимодействовать с продуктом? Именно это определяет уровень, не суммарная статистика.</div>
+<div class="options" data-q="c4" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>1&ndash;2 раза в год</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>Раз в квартал</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>Ежемесячно</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>2+ раза в месяц</div>
+</div></div>
+<div class="q-block"><div class="q-num">6 / 10</div><div class="q-text">Готовы выделить человека для привлечения участников?</div>
+<div class="q-hint">По контактной политике банка мы не можем напрямую работать с вашими клиентами. Без вашего человека привлечение не запустится &mdash; это первое касание, которое можете обеспечить только вы.</div>
+<div class="options" data-q="c5" data-type="single">
+<div class="opt" data-val="a" data-score="4"><div class="opt-radio"></div>Да, выделенный сотрудник</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>Частично, в рамках текущей загрузки</div>
+<div class="opt" data-val="c" data-score="1"><div class="opt-radio"></div>Нет, рассчитываем на вас</div>
+</div></div>
+<div class="q-block"><div class="q-num">7 / 10</div><div class="q-text">Готовы выделить бизнес-партнёра для регулярной работы с нами?</div>
+<div class="q-hint">Помимо привлечения, нам нужен человек от сегмента для ежедневных вопросов: приоритеты, повестка, согласования, обратная связь. Без этого мы работаем вслепую.</div>
+<div class="options" data-q="c5b" data-type="single">
+<div class="opt" data-val="a" data-score="4"><div class="opt-radio"></div>Да, выделим бизнес-партнёра</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>Будем взаимодействовать, но без выделенного человека</div>
+<div class="opt" data-val="c" data-score="1"><div class="opt-radio"></div>Нет, работайте автономно</div>
+</div></div>
+<div class="q-block"><div class="q-num">8 / 10</div><div class="q-text">На какой горизонт готовы инвестировать?</div>
+<div class="q-hint">Сообщество &mdash; долгосрочный инструмент. Первые системные результаты видны через 6-12 месяцев, глубокие эффекты &mdash; через 2-3 года.</div>
+<div class="options" data-q="c6" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>Разовая история &mdash; попробуем и посмотрим</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>Полгода&ndash;год, потом примем решение</div>
+<div class="opt" data-val="c" data-score="4"><div class="opt-radio"></div>2&ndash;3 года, строим системно</div>
+</div></div>
+<div class="q-block"><div class="q-num">9 / 10</div><div class="q-text">Готовы ли к открытому формату?</div>
+<div class="q-hint">В клубах и сообществах участники обсуждают свои реальные задачи &mdash; включая опыт с конкурентами. Это создаёт ценность, но требует доверия к формату.</div>
+<div class="options" data-q="c7" data-type="single">
+<div class="opt" data-val="a" data-score="4"><div class="opt-radio"></div>Да &mdash; участники обсуждают свои задачи, не только наши продукты</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>С ограничениями &mdash; некоторые темы закрыты</div>
+<div class="opt" data-val="c" data-score="1"><div class="opt-radio"></div>Нет &mdash; фокус строго на наших продуктах и повестке</div>
+</div></div>
+<div class="q-block"><div class="q-num">10 / 10</div><div class="q-text">Есть ли ограничения у аудитории?</div>
+<div class="q-hint">Некоторые аудитории (госслужба, оборонка, конкурентные рынки) по определению закрыты &mdash; это ограничивает глубину форматов, и это нормально.</div>
+<div class="options" data-q="c8" data-type="single">
+<div class="opt" data-val="a" data-score="4"><div class="opt-radio"></div>Открытая &mdash; никаких ограничений по конфиденциальности</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>Есть ограничения (госслужба, конфиденциальность, конкурентные опасения)</div>
+<div class="opt" data-val="c" data-score="1"><div class="opt-radio"></div>Очень закрытая аудитория</div>
+</div></div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-cm">
+<div class="survey-intro"><strong>12 вопросов, ~5 минут.</strong> Группа А: как сейчас выглядит продукт. Группа Б: куда можем прийти. На выходе &mdash; карточка с планом.</div>
+<div class="survey" id="survey-cm">
+<h3 style="color:var(--t2);margin-bottom:14px">Группа А: Как сейчас?</h3>
+<div class="q-block"><div class="q-num">1 / 12</div><div class="q-text">Сколько активных участников?</div>
+<div class="q-hint">Считаем тех, кто был хотя бы на 2 событиях за последние полгода. Не общую базу, а реально вовлечённых.</div>
+<div class="options" data-q="m1" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>До 30</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>30&ndash;100</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>100&ndash;500</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>500+</div>
+</div></div>
+<div class="q-block"><div class="q-num">2 / 12</div><div class="q-text">Какая доля участников приходит повторно?</div>
+<div class="q-hint">Из тех, кто был хотя бы раз — сколько пришли снова? Это главный показатель: создаём ли мы ценность, ради которой возвращаются.</div>
+<div class="options" data-q="m2" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>&lt;20%</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>20&ndash;40%</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>40&ndash;60%</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>&gt;60%</div>
+</div></div>
+<div class="q-block"><div class="q-num">3 / 12</div><div class="q-text">Есть ли ядро — люди, на которых можно опереться?</div>
+<div class="q-hint">Ядро — это не просто «приходят всегда». Это люди, которые влияют на повестку, приводят других, держат энергию группы. Без ядра продукт зависит целиком от КМ.</div>
+<div class="options" data-q="m3" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>Нет</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>2&ndash;5 чел., неустойчиво</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>5&ndash;15 чел., стабильно</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>15+, сами инициируют</div>
+</div></div>
+<div class="q-block"><div class="q-num">4 / 12</div><div class="q-text">Участники общаются друг с другом без вашей модерации?</div>
+<div class="q-hint">Самый честный признак зрелости: возникают ли связи между участниками сами по себе — или только когда вы организуете?</div>
+<div class="options" data-q="m4" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>Нет</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>Иногда, по делу</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>Регулярно</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>Дружат вне форматов</div>
+</div></div>
+<div class="q-block"><div class="q-num">5 / 12</div><div class="q-text">Вы не проводите событие целый месяц. Что происходит?</div>
+<div class="q-hint">Мысленный эксперимент: представьте, что вы ушли в отпуск. Что будет с чатом, с активностью, с инициативами? Это тест на то, насколько продукт живёт без вас.</div>
+<div class="options" data-q="m5" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>Тишина</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>Чат замирает</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>Ядро поддерживает</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>Сами организуют</div>
+</div></div>
+<div class="q-block"><div class="q-num">6 / 12</div><div class="q-text">CSAT последних событий</div>
+<div class="q-hint">Если не замеряете — это само по себе сигнал. Невозможно управлять тем, что не измеряешь.</div>
+<div class="options" data-q="m6" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>Не замеряем</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>&lt;7</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>7&ndash;8</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>8+</div>
+</div></div>
+
+<h3 style="color:var(--t2);margin:20px 0 14px">Группа Б: Куда можем?</h3>
+<div class="q-block"><div class="q-num">7 / 12</div><div class="q-text">Есть ли у аудитории общая «боль» или вызов?</div>
+<div class="q-hint">Сообщество формируется вокруг общей проблемы, а не общего продукта. Если у людей нет того, что их объединяет помимо бренда Сбера — потолок ограничен.</div>
+<div class="options" data-q="m7" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>Нет, разнородная</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>Есть, но не острая</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>Да, конкретная</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>Сами говорят</div>
+</div></div>
+<div class="q-block"><div class="q-num">8 / 12</div><div class="q-text">Достаточно ли плотности аудитории для регулярных очных встреч?</div>
+<div class="q-hint">Если в городе 20 потенциальных участников — очная ежемесячная встреча нереалистична. Если 200+ — можно строить клуб. Онлайн помогает, но не заменяет живой контакт для глубоких форматов.</div>
+<div class="options" data-q="m8" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>Рассредоточены</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>1&ndash;2 города</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>Большинство городов</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>Компактная</div>
+</div></div>
+<div class="q-block"><div class="q-num">9 / 12</div><div class="q-text">Есть ли потенциал для горизонтальных форматов?</div>
+<div class="q-hint">Мастермайнды, обсуждение практик, совместные проекты — форматы, где участники учатся друг у друга, а не только у спикеров. Это ключевое отличие клуба (уровень 3) от серии (уровень 2).</div>
+<div class="options" data-q="m9" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>Хотят экспертов</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>Не пробовали</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>Запрос есть</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>Работает</div>
+</div></div>
+<div class="q-block"><div class="q-num">10 / 12</div><div class="q-text">Какой уровень считаете реалистичным за 12 месяцев?</div>
+<div class="q-hint">Будьте честны — лучше зацелиться на 2 и достичь, чем обещать 4 и разочароваться. Шкала — навигатор: достигли одного уровня → решаем, идём ли дальше.</div>
+<div class="options" data-q="m10" data-type="single">
+<div class="opt" data-val="a" data-score="1"><div class="opt-radio"></div>1 &mdash; мероприятия</div>
+<div class="opt" data-val="b" data-score="2"><div class="opt-radio"></div>2 &mdash; серия</div>
+<div class="opt" data-val="c" data-score="3"><div class="opt-radio"></div>3 &mdash; клуб</div>
+<div class="opt" data-val="d" data-score="4"><div class="opt-radio"></div>4+ &mdash; среда доверия</div>
+</div></div>
+<div class="q-block"><div class="q-num">11 / 12</div><div class="q-text">Что нужно от руководства и бизнес-заказчика, чтобы вырасти на уровень?</div>
+<div class="q-hint">Выберите всё, что актуально. Это поможет сформулировать конкретный запрос.</div>
+<div class="options" data-q="m11" data-type="multi" data-max="4">
+<div class="opt opt-multi" data-val="a" data-score="1"><div class="opt-check"></div>Больше бюджета на события</div>
+<div class="opt opt-multi" data-val="b" data-score="2"><div class="opt-check"></div>Больше людей — КМ на территории</div>
+<div class="opt opt-multi" data-val="c" data-score="3"><div class="opt-check"></div>Доступ к аудитории — помощь с привлечением</div>
+<div class="opt opt-multi" data-val="d" data-score="4"><div class="opt-check"></div>Бизнес-партнёр от заказчика для ежедневной работы</div>
+<div class="opt opt-multi" data-val="e" data-score="4"><div class="opt-check"></div>Время и доверие — не менять задачу каждый квартал</div>
+</div></div>
+<div class="q-block"><div class="q-num">12 / 12</div><div class="q-text">Что сейчас мешает больше всего?</div>
+<div class="q-hint">Выберите всё, что реально блокирует. Честность здесь важнее оптимизма — это основа для плана действий.</div>
+<div class="options" data-q="m12" data-type="multi" data-max="4">
+<div class="opt opt-multi" data-val="a" data-score="0"><div class="opt-check"></div>Нет регулярности — редкие события, нет ритма</div>
+<div class="opt opt-multi" data-val="b" data-score="0"><div class="opt-check"></div>Нет доступа к аудитории — не можем привлечь нужных людей</div>
+<div class="opt opt-multi" data-val="c" data-score="0"><div class="opt-check"></div>Заказчик меняет приоритеты — нестабильность целей</div>
+<div class="opt opt-multi" data-val="d" data-score="0"><div class="opt-check"></div>Аудитория не готова к глубоким форматам</div>
+<div class="opt opt-multi" data-val="e" data-score="0"><div class="opt-check"></div>Недостаточно ресурсов (бюджет, люди, время)</div>
+</div></div>
+</div>
+</div>
+
+<div style="text-align:center;margin-top:24px">
+<button class="btn" onclick="calculateResults()">Рассчитать результат</button>
+</div>
+</div>
+</section>
+
+<!-- Results -->
+<section class="sec sec-warm" id="results" style="display:none">
+<div class="w">
+<div class="divider"></div>
+<span class="lbl">Результат</span>
+<h2>Карточка продукта</h2>
+
+<!-- Visual scale with markers -->
+<div class="result-card">
+<div class="res-scale" id="resScale">
+<div class="res-scale-seg" data-l="1"></div>
+<div class="res-scale-seg" data-l="2"></div>
+<div class="res-scale-seg" data-l="3"></div>
+<div class="res-scale-seg" data-l="4"></div>
+<div class="res-scale-seg" data-l="5"></div>
+</div>
+<div style="display:flex;justify-content:center;gap:16px;margin-top:28px;font-size:.75rem;flex-wrap:wrap">
+<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--terra);vertical-align:middle;margin-right:4px"></span>Сейчас: <strong id="res-current-inline">—</strong></span>
+<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--green);vertical-align:middle;margin-right:4px"></span>Реалистичная цель: <strong id="res-target-inline">—</strong></span>
+<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gold);vertical-align:middle;margin-right:4px"></span>Амбициозная цель: <strong id="res-ambitious-inline">—</strong></span>
+</div>
+</div>
+
+<div class="result-row">
+<div class="result-col">
+<div class="result-card">
+<h3>Что хочет заказчик</h3>
+<p id="res-goals" style="color:var(--t2);font-size:.8125rem">—</p>
+</div>
+</div>
+<div class="result-col">
+<div class="result-card">
+<h3>Чего нельзя обещать</h3>
+<p id="res-limits" style="color:var(--terra);font-size:.8125rem">—</p>
+</div>
+</div>
+</div>
+
+<div class="result-card">
+<h3>Рекомендации</h3>
+<ul class="rec-list" id="res-recommendations"></ul>
+</div>
+
+<div class="result-card">
+<h3>Риски</h3>
+<div id="res-risks" style="font-size:.8125rem;color:var(--t2)"></div>
+</div>
+
+<div class="result-card">
+<h3>Условия перехода</h3>
+<p id="res-conditions" style="font-size:.8125rem;color:var(--t2)"></p>
+</div>
+
+<div style="text-align:center;margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+<button class="btn-ghost btn btn-sm" onclick="document.getElementById('results').style.display='none';window.scrollTo({top:document.getElementById('diagnose').offsetTop-60,behavior:'smooth'})">Пересчитать</button>
+<button class="btn btn-sm" onclick="copyResults()">Скопировать результат</button>
+</div>
+</div>
+</section>
+
+<div class="copied-toast" id="copiedToast">Результат скопирован в буфер обмена</div>
+
+<footer class="footer"><div class="w"><p>Центр сообществ &middot; СберУниверситет &middot; 2026</p></div></footer>
+
+<script>
+const levels={
+1:{name:'Мероприятие',links:'Нет или одноразовые',activity:'Только организатор',participants:'Все — посетители',trust:'Отсутствует',test:'Ничего не происходит',
+userProf:'Новые знания и инсайты. Визитки потенциальных партнёров. Разовый импульс — но без продолжения он затухает за неделю.',
+userPersonal:'Впечатление и вдохновение. Ощущение «я не один» — но оно мимолётное, как послевкусие хорошего ужина.',
+sberSystem:'Нет системных эффектов. Одно касание не формирует привычку и не двигает по лестнице доверия.',
+sberRandom:'Случайная встреча участника с продуктом Сбера на стенде. Спонтанный обмен визитками с менеджером. Участник запомнил спикера и написал ему потом.',
+forSU:'Разовая выручка за мероприятие',metrics:'Посещаемость, CSAT, количество контактов',cant:'Устойчивые связи. Влияние на лояльность.',
+case:'<strong>Алексей, CEO производственной компании, Екатеринбург.</strong> Пришёл на бизнес-завтрак Сбера по теме GenAI. Послушал спикера, обменялся визитками с двумя предпринимателями. Через неделю забыл имена обоих. <em>Эффект для Алексея:</em> интересное утро, пара идей. <em>Эффект для Сбера:</em> одно касание в CRM, не повлияло на отношения.'},
+2:{name:'Серия',links:'Узнавание. Функциональные контакты',activity:'Организатор. Участники — потребители',participants:'Посетители (80-90%) + вовлечённые (10-20%)',trust:'Расчётное',test:'Активность -90%+',
+userProf:'Регулярное обновление знаний. Нетворк функциональных контактов — «знаю к кому обратиться по вопросу». Начинает формироваться привычка учиться.',
+userPersonal:'Ощущение принадлежности: «я хожу, значит я в обойме». Снижение чувства изоляции — особенно для предпринимателей и руководителей в регионах.',
+sberSystem:'4-12 касаний/год. Сбор данных о клиенте. Участник начинает ассоциировать Сбер с полезным контентом, а не только с банковскими продуктами. Первые конверсии в продукты — единичные.',
+sberRandom:'Участник рассказал коллеге о мероприятии — тот пришёл. Менеджер банка случайно узнал о потребности клиента на мероприятии. Участник подключил продукт после рекомендации спикера.',
+forSU:'Продажа серии/абонемента. Повторные покупки программ',metrics:'Retention, CSAT, активность в чате',cant:'Глубокое доверие. Самоорганизацию.',
+case:'<strong>Алексей, 4 месяца спустя.</strong> Ходит на ежемесячные встречи. Узнаёт людей, здоровается. В чате задал вопрос про автоматизацию склада — получил два ответа. Записался на программу СберУниверситета по рекомендации модератора. <em>Эффект для Алексея:</em> «есть место, куда хожу — там полезно». <em>Эффект для Сбера:</em> 4 касания, купил программу, в CRM появились данные о его задачах.'},
+3:{name:'Клуб',links:'Функциональные → личные',activity:'Организатор (70%) + участники (30%)',participants:'Посетители (60-70%) + вовлечённые (20-30%) + ядро (5-10%)',trust:'На основе знания',test:'Активность -50-60%. Ядро поддерживает',
+userProf:'Обмен реальным опытом с равными — ценнее любого учебника. Появляются конкретные решения для бизнеса: «попробовал подход коллеги — сработало». Рост компетенций через горизонтальный обмен.',
+userPersonal:'«Я в кругу своих» — чувство, что тебя понимают. Снижение одиночества руководителя. Начинаешь делиться не только профессиональным, но и личным — и это облегчает.',
+sberSystem:'1-2 касания/месяц. Рост глубины финансовых отношений (участники подключают новые продукты). Данные о целях и потребностях клиента для менеджеров сегмента. Конверсия в продукты — устойчивая.',
+sberRandom:'Участники начинают рекомендовать Сбер друг другу. Совместные проекты между участниками с участием банка. Инсайты от участников, которые меняют продуктовую стратегию сегмента.',
+forSU:'Продажа пакетов. Кросс-продажи программ через доверие',metrics:'Retention, горизонтальные взаимодействия, инициативы',cant:'Конфиденциальность. Устойчивость без организатора.',
+case:'<strong>Алексей, 10 месяцев спустя.</strong> Участвует в мастермайнде с 6 предпринимателями. Разобрал свой кейс — коллега из ритейла подсказал подход к логистике, который Алексей внедрил за месяц. Экономия 3 млн/год. Сам предложил тему для следующей встречи. <em>Эффект для Алексея:</em> конкретная экономия, ощущение «я в кругу своих», люди, к которым можно обратиться. <em>Эффект для Сбера:</em> Алексей подключил ГигаЧат Интерпрайз после демо на клубной встрече (15 млн/год).'},
+4:{name:'Среда доверия',links:'Доверительные. Уязвимость',activity:'Участники (50-60%) + организатор (40-50%)',participants:'Посетители (40-50%) + вовлечённые (30-40%) + ядро (15-20%)',trust:'На знании → идентификационное',test:'Ядро продолжает. Форум-группы живут',
+userProf:'Трансформация практик: участники реально меняют подходы к управлению, стратегии, командной работе. Совместные проекты, партнёрства, стратегические альянсы между участниками.',
+userPersonal:'Глубокая поддержка: «могу сказать здесь то, что не могу сказать нигде». Рост эмоциональной устойчивости. Развитие рефлексии и эмоционального интеллекта. Снижение стресса через разделение опыта с равными.',
+sberSystem:'Максимальное влияние на лестницу: участники концентрируют финансовые отношения в Сбере (рост доли оборотов, премиальные пакеты). Адвокаты бренда — рекомендуют Сбер без запроса. Стратегические диалоги получают живой контекст.',
+sberRandom:'Участник выступает публично как клиент Сбера — бесплатный PR. Форум-группа генерирует бизнес-идею, которую Сбер может поддержать. Участники сами создают контент о продуктах Сбера.',
+forSU:'Retention >60%. Реферальные продажи',metrics:'Retention >60%, самоорганизация, NPS',cant:'Полную самоорганизацию. Масштабирование без потерь.',
+case:'<strong>Алексей, 2 года спустя.</strong> В форум-группе из 8 человек. Рассказал о провале с новым продуктом — группа поддержала и помогла перестроить стратегию. Перевёл 80% оборотов в Сбер, подключил премиальный пакет. На вопрос «почему Сбер?» отвечает: «потому что люди, которым я доверяю, работают через Сбер». Порекомендовал двух коллег. <em>Эффект для Алексея:</em> изменил подход к бизнесу, нашёл людей, которым доверяет на уровне друзей. <em>Эффект для Сбера:</em> переход на 3 звезды по лестнице, 2 реферала, адвокат бренда.'},
+5:{name:'Сообщество',links:'Трансформирующие',activity:'Участники (70-80%) + садовник (20-30%)',participants:'Посетители (20-30%) + вовлечённые (30-40%) + ядро (25-30%) + лидеры (5-10%)',trust:'Идентификационное',test:'Живёт самостоятельно',
+userProf:'Полная трансформация: участники меняют карьеру, запускают совместные бизнесы, формируют отраслевые стандарты. Связи выходят за пределы площадки — становятся жизненными.',
+userPersonal:'«Они ближе, чем многие друзья». Глубокие человеческие отношения, построенные на доверии и общей миссии. Рост как человека, а не только как профессионала. Чувство осмысленности: «я вношу вклад во что-то большее».',
+sberSystem:'Максимальная лояльность — участники не уходят, потому что связаны не с продуктом, а друг с другом через бренд Сбера. Стратегическое партнёрство: совместные проекты, адвокация, формирование рынка. Самоподдерживающаяся экосистема.',
+sberRandom:'Участники влияют на отрасль — публикации, стандарты, конференции от имени сообщества. Эффект виральности: каждый участник приводит новых. Сообщество становится независимым медиа-каналом.',
+forSU:'Retention >70%. Контент от участников. Бренд-актив',metrics:'Retention >70%, коллаборации, NPS >70',cant:'Контроль. Предсказуемость. Быстрый результат.',
+case:'<strong>Алексей, 4 года спустя.</strong> Со-организатор регионального чаптера сообщества. Запустил совместный проект с двумя участниками — новый сервис на базе ГигаЧат для стройотрасли. Выступает на конференциях как участник сообщества Сбера. Привёл 12 новых участников за год. <em>Эффект для Алексея:</em> «это люди, которые изменили мою жизнь и бизнес». <em>Эффект для Сбера:</em> совместный продукт, публичная адвокация, 12 новых клиентов, влияние на отрасль.'}
+};
+const transitions={
+1:'<strong>Что нужно:</strong> запустить регулярный ритм (4-12 событий в год), создать единую повестку и чат для участников. <strong>На практике:</strong> определите фокусную территорию, назначьте КМ, проведите первые 3-4 события и замерьте — возвращаются ли участники повторно. Если retention выше 20% — ритм работает. <strong>Срок:</strong> 2-3 месяца.',
+2:'<strong>Что нужно:</strong> увеличить частоту до 1-2 раз в месяц, запустить горизонтальные форматы (мастермайнды, обсуждение практик), обеспечить однородность аудитории. <strong>На практике:</strong> выберите 10-15 наиболее вовлечённых участников и проведите для них первый мастермайнд. Если они сами начнут предлагать темы — ядро формируется. Параллельно следите за тем, чтобы аудитория была однородной: предпринимателей не смешивайте с наёмными менеджерами. <strong>Срок:</strong> 4-6 месяцев.',
+3:'<strong>Что нужно:</strong> внедрить конфиденциальность (правила, договорённости), запустить форум-группы (8-12 человек, регулярные встречи), довести ядро до 15%+ участников, договориться с заказчиком на горизонт 2+ года. <strong>На практике:</strong> это самый сложный переход — он требует изменения формата работы. Участники должны начать обсуждать не только профессиональное, но и личное. Для этого нужна безопасная среда, которую невозможно создать быстро. Ключевой сигнал: участники сами просят «больше таких встреч в маленьком кругу». <strong>Срок:</strong> 12-18 месяцев.',
+4:'<strong>Что нужно:</strong> сформировать общую миссию (не формальную, а прочувствованную участниками), добиться самоорганизации ядра (инициативы снизу), перевести заказчика из роли «управляющего» в роль «партнёра». <strong>На практике:</strong> это не задача КМ — это эволюция отношений. Сообщество либо дорастает до этого органически, либо нет. Форсировать нельзя. Можно только создавать условия: давать ядру всё больше автономии, поддерживать инициативы, не контролировать повестку. <strong>Срок:</strong> 2-3 года.',
+5:'<strong>Вы на максимальном уровне.</strong> Задача — поддерживать и не разрушить. Главные риски: перекоммерциализация (участники почувствуют, что ими торгуют), смена ключевых людей в ядре, потеря миссии. Рекомендация: минимальное вмешательство, максимальная поддержка инфраструктуры.'
+};
+const blockerTexts={
+a:'<strong>Нет регулярности.</strong> Без ритма невозможно сформировать привычку — участник забывает о продукте через 2 недели. Регулярность это не «иногда проводим», а фиксированный календарь, который участники могут планировать. Решение: зафиксировать минимальный ритм (хотя бы раз в месяц) и не отменять первые 2-3 месяца ни при каких обстоятельствах.',
+b:'<strong>Нет доступа к аудитории.</strong> По контактной политике банка мы не можем работать с клиентами напрямую. Если заказчик не обеспечивает привлечение — сообщество не растёт, а существующие участники размываются. Решение: добиться выделения ответственного от сегмента. Без этого — не запускать продукт выше уровня 1.',
+c:'<strong>Заказчик меняет приоритеты.</strong> Каждая смена курса обнуляет накопленное доверие участников и команды. Сообщество — долгосрочный инструмент (горизонт 2+ года). Если приоритеты меняются каждый квартал — уровень 2 это потолок. Решение: зафиксировать с заказчиком контрольные точки (раз в полгода) и договориться не менять задачу между ними.',
+d:'<strong>Аудитория не готова к глубоким форматам.</strong> Некоторые аудитории (госслужба, очень конкурентные рынки) по природе закрыты — люди не будут делиться уязвимостью с потенциальными конкурентами или коллегами по госслужбе. Это не проблема КМ — это ограничение среды. Решение: не пытаться строить уровень 4 там, где потолок — 2-3. Качественная серия с нетворкингом — полноценный продукт.',
+e:'<strong>Недостаточно ресурсов.</strong> Регулярный ритм требует бюджета, людей и времени. Один КМ на 11 ТБ — это распыление, а не масштабирование. Решение: сфокусировать ресурсы на 2-3 приоритетных территориях и строить глубину там, а не ширину везде.'
+};
+const goalTexts={a:'Охват',b:'Событийка',c:'Продвижение продуктов',d:'Укрепление отношений',e:'Эффект на бизнес',f:'Сбор данных',g:'Другое'};
+const needTexts={a:'Больше бюджета на события',b:'Больше людей (КМ на территории)',c:'Доступ к аудитории (помощь с привлечением)',d:'Бизнес-партнёр от заказчика для ежедневной работы',e:'Время и доверие (не менять задачу каждый квартал)'};
+
+function showLevel(n){
+document.querySelectorAll('.level-card').forEach(c=>c.classList.remove('active'));
+document.querySelector(`.level-card[data-level="${n}"]`)?.classList.add('active');
+const l=levels[n];
+document.getElementById('levelDetails').innerHTML=`
+<div style="margin-bottom:20px">
+<div class="detail-label">Связи между участниками</div>
+<div class="detail-value">${l.links}</div>
+</div>
+<div class="detail-grid" style="margin-bottom:16px">
+<div><div class="detail-label">Активность</div><div class="detail-value">${l.activity}</div></div>
+<div><div class="detail-label">Архитектура участников</div><div class="detail-value">${l.participants}</div></div>
+<div><div class="detail-label">Стадия доверия</div><div class="detail-value">${l.trust}</div></div>
+<div><div class="detail-label">Тест «КМ уходит на месяц»</div><div class="detail-value">${l.test}</div></div>
+</div>
+<div style="border-top:1px solid var(--border-l);padding-top:16px;margin-bottom:16px">
+<div style="font-family:var(--serif);font-size:.9375rem;font-weight:500;margin-bottom:12px">Ценность для участника</div>
+<div class="detail-grid">
+<div><div class="detail-label">Профессиональная: доход, компетенции, связи</div><div class="detail-value">${l.userProf}</div></div>
+<div><div class="detail-label">Личная: устойчивость, развитие, качество жизни</div><div class="detail-value">${l.userPersonal}</div></div>
+</div>
+</div>
+<div style="border-top:1px solid var(--border-l);padding-top:16px;margin-bottom:16px">
+<div style="font-family:var(--serif);font-size:.9375rem;font-weight:500;margin-bottom:12px">Эффекты для Сбера</div>
+<div class="detail-grid">
+<div><div class="detail-label" style="color:var(--green)">Системные, предсказуемые</div><div class="detail-value">${l.sberSystem}</div></div>
+<div><div class="detail-label" style="color:var(--gold)">Случайные, спонтанные</div><div class="detail-value">${l.sberRandom}</div></div>
+</div>
+</div>
+<div class="detail-grid">
+<div><div class="detail-label">Для СберУниверситета</div><div class="detail-value"><strong>${l.forSU}</strong></div></div>
+<div><div class="detail-label">Метрики</div><div class="detail-value">${l.metrics}</div></div>
+</div>
+<div style="border-top:1px solid var(--border-l);padding-top:16px;margin-top:16px">
+<div style="font-family:var(--serif);font-size:.9375rem;font-weight:500;margin-bottom:8px">Кейс: путь участника</div>
+<div class="detail-value" style="line-height:1.6">${l.case}</div>
+</div>
+<div style="border-top:1px solid var(--border-l);padding-top:12px;margin-top:12px">
+<div class="detail-label" style="color:var(--terra)">Чего нельзя обещать на этом уровне</div>
+<div class="detail-value" style="color:var(--terra)">${l.cant}</div>
+</div>`;
+document.getElementById('levelDetails').className='level-detail visible';
+}
+showLevel(1);
+
+function showTab(id){
+document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('visible'));
+event.target.classList.add('active');
+document.getElementById('tab-'+id).classList.add('visible');
+}
+
+document.addEventListener('click',function(e){
+const opt=e.target.closest('.opt');if(!opt)return;
+const options=opt.closest('.options'),type=options.dataset.type;
+if(type==='single'){options.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));opt.classList.add('selected')}
+else if(type==='multi'){const max=parseInt(options.dataset.max)||99;if(opt.classList.contains('selected'))opt.classList.remove('selected');else if(options.querySelectorAll('.opt.selected').length<max)opt.classList.add('selected')}
+});
+
+function getAnswers(pfx){
+const a={};
+document.querySelectorAll(`[data-q^="${pfx}"]`).forEach(opts=>{
+const q=opts.dataset.q,sel=opts.querySelectorAll('.opt.selected');
+if(sel.length)a[q]=Array.from(sel).map(s=>({val:s.dataset.val,score:parseFloat(s.dataset.score)||0}));
+});return a;
+}
+
+let lastCurrent=1,lastTarget=2;
+
+const segmentNotes={
+ksb:'КСБ (Компании Роста): аудитория ~10 000 ИНН, ~50 000 ЛПР. Высокий потенциал для клуба и среды доверия — ЛПР крупного бизнеса ценят равных. GenAI — приоритет №1 для этого сегмента. CEO-клуб (20-30 чел) может стать ядром. Ключевое условие: ответственный от КСБ за привлечение — без него по контактной политике банка мы не можем работать с аудиторией напрямую.',
+mmb:'ММБ (малый и микробизнес): массовая аудитория, но сильно рассредоточена. Предприниматели ценят практическую пользу и экономию времени. Форматы должны быть короткие, конкретные, с немедленной ценностью. Потенциал для клуба — при однородности (еком, бухгалтерия, HoReCa). Ограничение: сложно обеспечить регулярность для конкретного участника при большой географии.',
+rgs:'РГС (региональный госсектор): специфика государственной службы — иерархичность, закрытость, недоверие к «открытым» форматам. Потолок зрелости ограничен — уровень 2-3 максимум. И это нормально. Форматы: не факап-сторис, а «обмен практиками». Конфиденциальность почти невозможна. Качественная серия мероприятий — полноценный продукт.',
+rb:'Розничный бизнес: большой объём, но потребности отличаются от корпоративного сегмента. Участники ценят конкретные инструменты и быстрые решения. Потенциал для серии и клуба при фокусировке на конкретные ниши.',
+other:'Внутренние сообщества (амбассадоры, аламни): высокий потенциал — у людей уже есть связь со Сбером. Аламни: общий опыт обучения = фундамент для доверия. Амбассадоры: общая миссия + профессиональная идентичность — потенциал до уровня 4-5 при инфраструктурном статусе.'
+};
+
+function calculateResults(){
+const cA=getAnswers('c'),mA=getAnswers('m');
+let asIs=[];for(let i=1;i<=6;i++){const a=mA['m'+i];if(a&&a[0])asIs.push(a[0].score)}
+let asIsAvg=asIs.length?asIs.reduce((a,b)=>a+b,0)/asIs.length:1;
+let current=Math.max(1,Math.min(5,Math.round(asIsAvg)));
+
+let toBe=[];for(let i=7;i<=10;i++){const a=mA['m'+i];if(a&&a[0])toBe.push(a[0].score)}
+let goalMax=1;const c1=cA['c1'];if(c1)goalMax=Math.round(Math.max(...c1.map(s=>s.score)));
+
+// Geography penalty
+let geoScore=4;const c3=cA['c3'];if(c3&&c3[0])geoScore=c3[0].score;
+let geoCeiling=geoScore<=1?2:geoScore<=2?3:geoScore<=3?4:5;
+
+let custRes=[];for(let i=3;i<=8;i++){const a=cA['c'+i];if(a&&a[0])custRes.push(a[0].score)}
+const c5b=cA['c5b'];if(c5b&&c5b[0])custRes.push(c5b[0].score);
+let custAvg=custRes.length?custRes.reduce((a,b)=>a+b,0)/custRes.length:2;
+let toBeAvg=toBe.length?toBe.reduce((a,b)=>a+b,0)/toBe.length:2;
+let target=Math.max(1,Math.min(5,Math.round(Math.min(toBeAvg,goalMax,custAvg,geoCeiling))));
+if(target<current)target=current;
+
+// Ambitious = target + 1, capped at 5
+let ambitious=Math.min(5,target+1);
+
+lastCurrent=current;lastTarget=target;
+
+// Segment
+let segment='other';const cSeg=cA['c_seg'];if(cSeg&&cSeg[0])segment=cSeg[0].val;
+let segNote=segmentNotes[segment]||'';
+
+// Blockers
+let blockers=[];const m12=mA['m12'];if(m12)m12.forEach(b=>{if(blockerTexts[b.val])blockers.push(blockerTexts[b.val])});
+if(!blockers.length)blockers.push('Не определён');
+let goalsText='';if(c1)goalsText=c1.map(g=>goalTexts[g.val]).join(', ');
+let needs=[];const m11=mA['m11'];if(m11)m11.forEach(n=>{if(needTexts[n.val])needs.push(needTexts[n.val])});
+let needText=needs.join('; ');
+
+// Show results
+document.getElementById('results').style.display='';
+
+// Scale markers — 3 markers
+document.querySelectorAll('.res-marker,.res-marker-label').forEach(m=>m.remove());
+const scale=document.getElementById('resScale');
+const segs=scale.querySelectorAll('.res-scale-seg');
+
+function addMarker(seg,cls,text,label){
+if(!seg)return;
+const mk=document.createElement('div');mk.className='res-marker '+cls;mk.textContent=text;mk.style.left='50%';seg.appendChild(mk);
+const lb=document.createElement('div');lb.className='res-marker-label';lb.textContent=label;lb.style.left='50%';lb.style.bottom='-22px';lb.style.position='absolute';seg.appendChild(lb);
+}
+addMarker(segs[current-1],'res-marker-current',current,'сейчас');
+if(target!==current)addMarker(segs[target-1],'res-marker-target',target,'цель');
+if(ambitious!==target&&ambitious!==current){
+const amMk=document.createElement('div');amMk.className='res-marker';amMk.textContent=ambitious;amMk.style.left='50%';
+amMk.style.background='var(--gold)';amMk.style.color='#fff';segs[ambitious-1].appendChild(amMk);
+const amLb=document.createElement('div');amLb.className='res-marker-label';amLb.textContent='амбиция';amLb.style.left='50%';amLb.style.bottom='-22px';amLb.style.position='absolute';segs[ambitious-1].appendChild(amLb);
+}
+
+document.getElementById('res-current-inline').textContent=`${current} — ${levels[current].name}`;
+document.getElementById('res-target-inline').textContent=`${target} — ${levels[target].name}`;
+document.getElementById('res-ambitious-inline').textContent=`${ambitious} — ${levels[ambitious].name}`;
+document.getElementById('res-goals').textContent=goalsText||'Заказчик не ответил';
+document.getElementById('res-limits').textContent=levels[current].cant;
+
+// Why current level
+const whyNow=[];
+const m2v=mA['m2'];if(m2v&&m2v[0]&&m2v[0].score<=2)whyNow.push('Низкий retention — участники не возвращаются, значит ценность пока недостаточна для формирования привычки');
+const m3v=mA['m3'];if(m3v&&m3v[0]&&m3v[0].score<=2)whyNow.push('Нет устойчивого ядра — продукт полностью зависит от КМ, без него всё остановится');
+const m4v=mA['m4'];if(m4v&&m4v[0]&&m4v[0].score<=1)whyNow.push('Участники не общаются друг с другом — нет горизонтальных связей, все взаимодействия идут через организатора');
+const m5v=mA['m5'];if(m5v&&m5v[0]&&m5v[0].score<=1)whyNow.push('Без КМ продукт полностью останавливается — это признак уровня 1-2');
+if(geoScore<=2)whyNow.push('Аудитория распределена по большой территории — конкретный участник в конкретном городе получает мало касаний');
+const m6v=mA['m6'];if(m6v&&m6v[0]&&m6v[0].score<=1)whyNow.push('CSAT не замеряется — невозможно управлять тем, что не измеряешь');
+
+// Why target ceiling
+const whyCeiling=[];
+if(goalMax<=2)whyCeiling.push('Заказчик ориентирован на охват и событийку — для этих целей достаточно уровня 1-2, строить глубже значит тратить ресурсы не на то, что заказчик ценит');
+if(geoScore<=1)whyCeiling.push('Вся Россия (11 ТБ) — при такой географии невозможно обеспечить частоту выше 1-2 раз/год для конкретного участника. Для уровня 3+ нужен фокус на конкретные города');
+const c6v=cA['c6'];if(c6v&&c6v[0]&&c6v[0].score<=2)whyCeiling.push('Горизонт заказчика короткий — для уровня 3+ нужно минимум 2 года системной работы, за полгода сообщество не построить');
+const c8v=cA['c8'];if(c8v&&c8v[0]&&c8v[0].score<=1)whyCeiling.push('Очень закрытая аудитория — конфиденциальность и глубокие форматы (форум-группы, мастермайнды) маловероятны');
+const m8v=mA['m8'];if(m8v&&m8v[0]&&m8v[0].score<=1)whyCeiling.push('Участники рассредоточены — нет критической массы для регулярных очных встреч, а онлайн не заменяет живой контакт для глубоких форматов');
+const m9v=mA['m9'];if(m9v&&m9v[0]&&m9v[0].score<=1)whyCeiling.push('Аудитория хочет слушать экспертов, а не обмениваться опытом — это ограничивает потенциал горизонтальных форматов');
+
+const recs=[];
+if(segNote)recs.push(`<strong>Специфика сегмента:</strong> ${segNote}`);
+if(whyNow.length)recs.push(`<strong>Почему сейчас уровень ${current} (${levels[current].name}):</strong> ${whyNow.join('. ')}.`);
+if(whyCeiling.length)recs.push(`<strong>Почему реалистичный потолок — уровень ${target} (${levels[target].name}):</strong> ${whyCeiling.join('. ')}.`);
+if(current<target)recs.push(`<strong>Что нужно для перехода ${current}→${target}:</strong> ${transitions[current]}`);
+if(ambitious<=5&&ambitious>target)recs.push(`<strong>Амбициозная цель — уровень ${ambitious} (${levels[ambitious].name}):</strong> достижима если снять блокеры и обеспечить: ${transitions[target]}`);
+if(needText)recs.push(`<strong>КМ запрашивает от руководства и заказчика:</strong> ${needText}`);
+if(geoScore<=2)recs.push('<strong>География:</strong> распределённая аудитория — рекомендуем фокусироваться на 2-3 ключевых городах и строить глубину там, а не распылять ресурсы по всей территории');
+recs.push('<strong>Следующий шаг:</strong> пересмотреть оценку через квартал. Достигли целевого уровня — решаем, двигаемся ли к амбициозному');
+document.getElementById('res-recommendations').innerHTML=recs.map(r=>`<li>${r}</li>`).join('');
+
+document.getElementById('res-risks').innerHTML=blockers.map(b=>`<p style="margin-bottom:8px"><span class="risk-tag risk-high">Блокер</span>${b}</p>`).join('')+`<p style="margin-top:10px"><span class="risk-tag risk-med">Внимание</span>Если блокеры не устранить — уровень ${target} недостижим. Рекомендуем зафиксировать план устранения, назначить ответственных и установить дедлайн.</p>`;
+document.getElementById('res-conditions').innerHTML=transitions[current]||'';
+
+window.scrollTo({top:document.getElementById('results').offsetTop-60,behavior:'smooth'});
+}
+
+function copyResults(){
+const c=lastCurrent,t=lastTarget;
+const goals=document.getElementById('res-goals').textContent;
+const limits=document.getElementById('res-limits').textContent;
+const recs=Array.from(document.querySelectorAll('#res-recommendations li')).map(l=>l.textContent);
+const risks=document.getElementById('res-risks').textContent;
+const conds=document.getElementById('res-conditions').textContent;
+
+const amb=Math.min(5,t+1);
+const text=`КАРТОЧКА ПРОДУКТА
+═══════════════
+Текущий уровень: ${c} — ${levels[c].name}
+Реалистичная цель: ${t} — ${levels[t].name}
+Амбициозная цель: ${amb} — ${levels[amb].name}
+
+Цели заказчика: ${goals}
+Нельзя обещать на текущем уровне: ${limits}
+
+Рекомендации:
+${recs.map(r=>'• '+r.replace(/<[^>]+>/g,'')).join('\n')}
+
+Риски: ${risks.replace(/<[^>]+>/g,'')}
+Условия перехода: ${conds}
+
+Пересмотреть через квартал.
+—
+Центр сообществ · ${new Date().toLocaleDateString('ru')}`;
+
+navigator.clipboard.writeText(text).then(()=>{
+const toast=document.getElementById('copiedToast');
+toast.style.display='block';setTimeout(()=>toast.style.display='none',2000);
+});
+}
+</script>
+</body>
+</html>
