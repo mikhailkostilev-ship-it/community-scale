@@ -895,6 +895,7 @@ window.scrollTo({top:document.getElementById('results').offsetTop-60,behavior:'s
 function copyResults(){
 const c=lastCurrent,t=lastTarget;
 const goals=document.getElementById('res-goals').textContent;
+const promise=document.getElementById('res-promise').textContent;
 const limits=document.getElementById('res-limits').textContent;
 const recs=Array.from(document.querySelectorAll('#res-recommendations li')).map(l=>l.textContent);
 const risks=document.getElementById('res-risks').textContent;
@@ -908,7 +909,8 @@ const text=`КАРТОЧКА ПРОДУКТА
 Амбициозная цель: ${amb} — ${levels[amb].name}
 
 Цели заказчика: ${goals}
-Нельзя обещать на текущем уровне: ${limits}
+Обещаем: ${promise}
+Не обещаем: ${limits}
 
 Рекомендации:
 ${recs.map(r=>'• '+r.replace(/<[^>]+>/g,'')).join('\n')}
